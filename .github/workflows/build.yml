@@ -60,7 +60,7 @@ jobs:
         run: |
           mkdir -p ~/android
           cd ~/android
-          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs --depth=1
+          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --depth=1
 
       - name: Copy local manifests
         run: |
@@ -71,7 +71,7 @@ jobs:
         run: |
           cd ~/android
           # Sincroniza apenas o necessário e de forma otimizada
-          repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+          repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
           
           echo "=== Disk usage BEFORE deleting .repo ==="
           df -h
