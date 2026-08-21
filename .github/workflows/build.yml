@@ -7,40 +7,39 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
+      # PASSO 1: Limpeza nativa profissional com a Action oficial free-disk-space (Liberando ~45GB extras de bloatware e Docker!)
+      - name: Free Disk Space (Reclaim Host Space)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          # Mantem o swap original do GitHub ativo para seguranca de RAM virtual
+          swap-storage: false
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 1: Limpeza fisica e configuracao de 4GB de swap nativo (ideal com o Git otimizado)
-      - name: Cleanup Host Disk & Setup 4GB Swap
+      # PASSO 2: Garante um Swapfile de 4GB limpo e estavel no sistema
+      - name: Configure Swap Space
         run: |
-          echo "=== Disk space BEFORE cleanup ==="
-          df -h
-          
-          echo "Deletando softwares redundantes para liberar espaco..."
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/hostedtoolcache
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/local/share/chrome-driver
-          sudo rm -rf /usr/local/share/powershell
-          
-          echo "=== Disk space AFTER cleanup ==="
-          df -h
-          
-          echo "=== Configurando 4GB de Swap (RAM Virtual) ==="
-          sudo swapoff -a
-          sudo rm -f /mnt/swapfile
+          echo "=== Status da memoria original ==="
+          free -h
+          sudo swapoff -a || true
+          sudo rm -f /swapfile || true
+          sudo rm -f /mnt/swapfile || true
           sudo fallocate -l 4G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
-          
-          echo "=== Status da memoria e swap atualizado ==="
+          echo "=== Status da memoria pos-configuracao ==="
           free -h
+          df -h
 
-      # PASSO 2: Instala as dependencias na particao raiz nativa
+      # PASSO 3: Instala as dependencias na particao raiz nativa limpa
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -64,7 +63,7 @@ jobs:
           git config --global core.preloadIndex true
           git config --global core.symlinks true
 
-      # PASSO 3: Inicia a preparacao e download do Android na pasta padrão do usuário (~/android)
+      # PASSO 4: Inicia a preparacao e download do Android na pasta padrão do usuário (~/android)
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
           mkdir -p ~/android
