@@ -7,43 +7,20 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
+      # EXPANDE A PARTICAO RAIZ PARA OCUPAR 100% DO DISCO FISICO SSD DA VM (~95GB livres!)
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 5120
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Free Disk Space (Cleanup Runner Ultra-Aggressive V2)
-        run: |
-          echo "=== Freeing up space (Ultra-Aggressive V2) ==="
-          # Remove SDKs e compiladores pré-instalados gigantes que não usamos
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /opt/pipx
-          sudo rm -rf /usr/local/graalvm
-          sudo rm -rf /usr/local/share/powershell
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/lib/node_modules
-          sudo rm -rf /var/lib/mongodb
-          sudo rm -rf /usr/share/azure-cli
-          
-          # Limpa o Hosted Tool Cache do GitHub Actions (Libera ~20GB!)
-          sudo rm -rf /opt/hostedtoolcache
-          
-          # Limpa o Java de fábrica (A compilação do Android usa o Java próprio em prebuilts/jdk) (Libera ~5GB)
-          sudo rm -rf /usr/lib/jvm
-          
-          # Limpa o compilador Rust do sistema (A compilação usa o prebuilts/rust) (Libera ~4GB)
-          sudo rm -rf /usr/share/rust
-          
-          # Deleta a pasta do Docker inteira (Libera ~20GB!)
-          sudo rm -rf /var/lib/docker
-          
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo apt-get clean
-          
-          echo "=== Disk space after V2 cleanup ==="
-          df -h
 
       - name: Install build dependencies
         run: |
