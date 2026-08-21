@@ -10,34 +10,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 1: Limpeza fisica agressiva do disco raiz original (Liberando mais de 50GB extras na particao raiz nativa!)
-      - name: Cleanup Host Disk Space (Physical Cleanup)
+      # PASSO 1: Limpeza fisica e criacao de 8GB de memoria virtual (Swap) contra estouro de RAM no checkout do Rust
+      - name: Cleanup Host Disk & Setup 8GB Swap
         run: |
           echo "=== Disk space BEFORE cleanup ==="
           df -h
           
-          echo "Deletando Android SDK & NDK..."
+          echo "Deletando softwares redundantes para liberar espaco..."
           sudo rm -rf /usr/local/lib/android
-          
-          echo "Deletando .NET & Caches..."
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/hostedtoolcache
-          
-          echo "Deletando compiladores Haskell e Swift..."
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/share/swift
-          
-          echo "Deletando bibliotecas C++ adicionais..."
           sudo rm -rf /usr/local/share/boost
-          
-          echo "Deletando drivers redundantes..."
           sudo rm -rf /usr/local/share/chrome-driver
           sudo rm -rf /usr/local/share/powershell
           
           echo "=== Disk space AFTER cleanup ==="
           df -h
+          
+          echo "=== Configurando 8GB de Swap (RAM Virtual) contra falhas de checkout ==="
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          
+          echo "=== Status da memoria e swap atualizado ==="
+          free -h
 
-      # PASSO 2: Instala as dependencias na particao raiz nativa (que agora tem >130GB livres!)
+      # PASSO 2: Instala as dependencias na particao raiz nativa
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -50,17 +53,23 @@ jobs:
           chmod a+x ~/bin/repo
           sudo ln -sf ~/bin/repo /usr/bin/repo
 
-      - name: Configure Git identity
+      - name: Configure Git & RAM Optimizations
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          # Otimizacoes do Git para rodar de forma leve em maquinas virtuais
+          git config --global pack.threads 1
+          git config --global pack.windowMemory 256m
+          git config --global pack.packSizeLimit 256m
+          git config --global core.preloadIndex true
+          git config --global core.symlinks true
 
-      # PASSO 3: Inicia a preparacao e download do Android na pasta padrão do usuário (~/android)
+      # PASSO 3: Inicia a preparacao e download do Android (filtrando ferramentas darwin/windows e usando profundidade 1)
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
           mkdir -p ~/android
           cd ~/android
-          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --depth=1
+          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --depth=1 --groups=all,-notdefault,-darwin,-windows
 
       - name: Copy local manifests
         run: |
