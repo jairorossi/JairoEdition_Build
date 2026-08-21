@@ -64,11 +64,11 @@ jobs:
           git config --global core.symlinks true
 
       # PASSO 4: Inicia a preparacao e download do Android na pasta padrão do usuário (~/android)
-      - name: Initialize ROM sources (LineageOS 21.0)
+      - name: Initialize ROM sources (LineageOS 19.1)
         run: |
           mkdir -p ~/android
           cd ~/android
-          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --depth=1 --groups=all,-notdefault,-darwin,-windows
+          repo init -u https://github.com/LineageOS/android.git -b lineage-19.1 --depth=1 --groups=all,-notdefault,-darwin,-windows
 
       - name: Copy local manifests
         run: |
@@ -112,5 +112,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: /home/runner/android/out/target/product/raphael/lineage-21.0-*.zip
+          path: /home/runner/android/out/target/product/raphael/lineage-19.1-*.zip
           retention-days: 7
