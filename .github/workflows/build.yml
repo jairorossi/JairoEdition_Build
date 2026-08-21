@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # EXPANDE A PARTICAO RAIZ PARA OCUPAR 100% DO DISCO FISICO SSD DA VM (~95GB livres!)
+      # EXPANDE A PARTICAO RAIZ PARA OCUPAR 100% DO DISCO FISICO SSD DA VM (~95GB-102GB livres!)
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@v10
         with:
@@ -41,18 +41,20 @@ jobs:
 
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
-          mkdir -p ~/android
-          cd ~/android
+          # Criamos a pasta android DENTRO do volume de 102GB livres do GITHUB_WORKSPACE
+          mkdir -p $GITHUB_WORKSPACE/android
+          cd $GITHUB_WORKSPACE/android
           repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs --depth=1
 
       - name: Copy local manifests
         run: |
-          mkdir -p ~/android/.repo/local_manifests
-          cp local_manifests/raphael.xml ~/android/.repo/local_manifests/
+          # Copia os manifestos locais para o local correto de compilacao
+          mkdir -p $GITHUB_WORKSPACE/android/.repo/local_manifests
+          cp local_manifests/raphael.xml $GITHUB_WORKSPACE/android/.repo/local_manifests/
 
       - name: Sync ROM sources
         run: |
-          cd ~/android
+          cd $GITHUB_WORKSPACE/android
           # Sincroniza apenas o necessário e de forma otimizada
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
           
@@ -68,7 +70,7 @@ jobs:
 
       - name: Apply JairoEdition Customizations & Build
         run: |
-          cd ~/android
+          cd $GITHUB_WORKSPACE/android
           # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
           device_mk="device/xiaomi/raphael/device.mk"
           if [ -f "$device_mk" ]; then
@@ -87,5 +89,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: /home/runner/android/out/target/product/raphael/lineage-21.0-*.zip
+          path: ${{ github.workspace }}/android/out/target/product/raphael/lineage-21.0-*.zip
           retention-days: 7
