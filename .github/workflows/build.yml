@@ -7,21 +7,10 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # EXPANDE A PARTICAO RAIZ PARA OCUPAR 100% DO DISCO FISICO SSD DA VM (~95GB-102GB livres!)
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@v10
-        with:
-          root-reserve-mb: 5120
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # PASSO 1: Instala as dependencias de compilacao primeiro (quando a particao raiz tem 87GB livres!)
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -39,16 +28,27 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
+      # PASSO 2: Agora que as ferramentas estao instaladas, expande a particao para o compilador do Android usar os 102GB livres
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 8192 # Reserva 8GB na raiz para seguranca de logs e arquivos temporarios
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      # PASSO 3: Inicia a preparacao e download do Android na pasta montada no volume de 102GB
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
-          # Criamos a pasta android DENTRO do volume de 102GB livres do GITHUB_WORKSPACE
           mkdir -p $GITHUB_WORKSPACE/android
           cd $GITHUB_WORKSPACE/android
           repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs --depth=1
 
       - name: Copy local manifests
         run: |
-          # Copia os manifestos locais para o local correto de compilacao
           mkdir -p $GITHUB_WORKSPACE/android/.repo/local_manifests
           cp local_manifests/raphael.xml $GITHUB_WORKSPACE/android/.repo/local_manifests/
 
@@ -89,5 +89,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: ${{ github.workspace }}/android/out/target/product/raphael/lineage-21.0-*.zip
+          path: ${{ github.workspace }}/android/out/target/product/raphael/line-21.0-*.zip
           retention-days: 7
