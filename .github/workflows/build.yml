@@ -7,10 +7,23 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
+      # PASSO 1: Expande o disco para 102GB e reserva 8GB na raiz para o sistema (apt-get)
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 8192 # Reserva 8GB de seguranca na raiz para logs e apt-get
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      # PASSO 2: Faz o checkout do repositorio direto dentro da nova particao de 102GB montada
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 1: Instala as dependencias de compilacao primeiro (quando a particao raiz tem 87GB livres!)
+      # PASSO 3: Instala as dependencias usando os 8GB reservados na particao raiz
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -28,19 +41,7 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # PASSO 2: Agora que as ferramentas estao instaladas, expande a particao para o compilador do Android usar os 102GB livres
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@v10
-        with:
-          root-reserve-mb: 8192 # Reserva 8GB na raiz para seguranca de logs e arquivos temporarios
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
-      # PASSO 3: Inicia a preparacao e download do Android na pasta montada no volume de 102GB
+      # PASSO 4: Inicia a preparacao e download do Android
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
           mkdir -p $GITHUB_WORKSPACE/android
@@ -89,5 +90,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: ${{ github.workspace }}/android/out/target/product/raphael/line-21.0-*.zip
+          path: ${{ github.workspace }}/android/out/target/product/raphael/lineage-21.0-*.zip
           retention-days: 7
