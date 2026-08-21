@@ -97,7 +97,7 @@ jobs:
           if [ -f "$device_mk" ]; then
             echo "" >> $device_mk
             echo "# JairoEdition Custom Properties" >> $device_mk
-            echo "PRODUCT_PROPERTY_OVERRIDES += ro.lineage.maintainer=Jairo" >> $device_mk
+            echo "PRODUCT_PROPERTY_OVERRIDES += ro.lineage.maintainer=\"Jairo Rossi\"" >> $device_mk
             echo "WITH_GAPPS := true" >> $device_mk
           fi
           
