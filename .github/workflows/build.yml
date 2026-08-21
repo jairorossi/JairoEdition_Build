@@ -3,15 +3,20 @@ name: Build Custom ROM JairoEdition A14
 on:
   workflow_dispatch: # Permite iniciar a compilacao manualmente com um clique no site do GitHub
 
+# REDIRECIONA O HOME E A PASTA TEMPORARIA PARA DENTRO DO NOSSO SSD DE 102GB LIVRES
+env:
+  HOME: ${{ github.workspace }}/home
+  TMPDIR: ${{ github.workspace }}/tmp
+
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # PASSO 1: Expande o disco para 102GB e reserva 8GB na raiz para o sistema (apt-get)
+      # PASSO 1: Expande o disco para 102GB e reserva 10GB na raiz para segurança
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@v10
         with:
-          root-reserve-mb: 16384 # Reserva 16GB de seguranca na raiz para o sistema (apt-get)
+          root-reserve-mb: 10240
           swap-size-mb: 1024
           remove-dotnet: 'true'
           remove-android: 'true'
@@ -19,11 +24,18 @@ jobs:
           remove-codeql: 'true'
           remove-docker-images: 'true'
 
-      # PASSO 2: Faz o checkout do repositorio direto dentro da nova particao de 102GB montada
+      # PASSO 2: Faz o checkout do repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 3: Instala as dependencias usando os 8GB reservados na particao raiz
+      # PASSO 3: Cria as pastas personalizadas de HOME e TMP dentro do volume de 102GB
+      - name: Create custom directories
+        run: |
+          mkdir -p ${{ github.workspace }}/home
+          mkdir -p ${{ github.workspace }}/tmp
+          df -h
+
+      # PASSO 4: Instala as dependencias usando os 10GB reservados na particao raiz
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -41,7 +53,7 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # PASSO 4: Inicia a preparacao e download do Android
+      # PASSO 5: Inicia a preparacao e download do Android no volume de 102GB
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
           mkdir -p $GITHUB_WORKSPACE/android
