@@ -7,40 +7,23 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
+      # PASSO 1: Expande o disco para a pasta de trabalho, mantendo 12GB na raiz para o daemon e configurando 8GB de swap contra estouro de RAM
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 12288 # Reserva 12GB de seguranca na raiz para evitar crash do agente do GitHub
+          swap-size-mb: 8192 # Configura 8GB de Swap (RAM virtual) no LVM para evitar OOM no Rust
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      # PASSO 2: Faz o checkout do repositorio dentro da particao LVM expandida
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 1: Limpeza fisica e criacao de 8GB de memoria virtual (Swap) contra estouro de RAM no checkout do Rust
-      - name: Cleanup Host Disk & Setup 8GB Swap
-        run: |
-          echo "=== Disk space BEFORE cleanup ==="
-          df -h
-          
-          echo "Deletando softwares redundantes para liberar espaco..."
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/hostedtoolcache
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/local/share/chrome-driver
-          sudo rm -rf /usr/local/share/powershell
-          
-          echo "=== Disk space AFTER cleanup ==="
-          df -h
-          
-          echo "=== Configurando 8GB de Swap (RAM Virtual) contra falhas de checkout ==="
-          sudo swapoff -a
-          sudo rm -f /mnt/swapfile
-          sudo fallocate -l 8G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          
-          echo "=== Status da memoria e swap atualizado ==="
-          free -h
-
-      # PASSO 2: Instala as dependencias na particao raiz nativa
+      # PASSO 3: Instala as dependencias usando os 12GB livres na particao raiz
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -57,28 +40,28 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          # Otimizacoes do Git para rodar de forma leve em maquinas virtuais
+          # Otimizações de concorrência e memória do Git
           git config --global pack.threads 1
           git config --global pack.windowMemory 256m
           git config --global pack.packSizeLimit 256m
           git config --global core.preloadIndex true
           git config --global core.symlinks true
 
-      # PASSO 3: Inicia a preparacao e download do Android (filtrando ferramentas darwin/windows e usando profundidade 1)
+      # PASSO 4: Inicia a preparacao e download do Android na pasta montada no volume de 102GB livres
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
-          mkdir -p ~/android
-          cd ~/android
+          mkdir -p $GITHUB_WORKSPACE/android
+          cd $GITHUB_WORKSPACE/android
           repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --depth=1 --groups=all,-notdefault,-darwin,-windows
 
       - name: Copy local manifests
         run: |
-          mkdir -p ~/android/.repo/local_manifests
-          cp local_manifests/raphael.xml ~/android/.repo/local_manifests/
+          mkdir -p $GITHUB_WORKSPACE/android/.repo/local_manifests
+          cp local_manifests/raphael.xml $GITHUB_WORKSPACE/android/.repo/local_manifests/
 
       - name: Sync ROM sources
         run: |
-          cd ~/android
+          cd $GITHUB_WORKSPACE/android
           # Sincroniza apenas o necessário e de forma otimizada
           repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
           
@@ -94,7 +77,7 @@ jobs:
 
       - name: Apply JairoEdition Customizations & Build
         run: |
-          cd ~/android
+          cd $GITHUB_WORKSPACE/android
           # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
           device_mk="device/xiaomi/raphael/device.mk"
           if [ -f "$device_mk" ]; then
@@ -113,5 +96,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: /home/runner/android/out/target/product/raphael/lineage-21.0-*.zip
+          path: ${{ github.workspace }}/android/out/target/product/raphael/lineage-21.0-*.zip
           retention-days: 7
