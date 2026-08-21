@@ -3,39 +3,41 @@ name: Build Custom ROM JairoEdition A14
 on:
   workflow_dispatch: # Permite iniciar a compilacao manualmente com um clique no site do GitHub
 
-# REDIRECIONA O HOME E A PASTA TEMPORARIA PARA DENTRO DO NOSSO SSD DE 102GB LIVRES
-env:
-  HOME: ${{ github.workspace }}/home
-  TMPDIR: ${{ github.workspace }}/tmp
-
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # PASSO 1: Expande o disco para 102GB e reserva 10GB na raiz para segurança
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@v10
-        with:
-          root-reserve-mb: 10240
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
-      # PASSO 2: Faz o checkout do repositorio
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 3: Cria as pastas personalizadas de HOME e TMP dentro do volume de 102GB
-      - name: Create custom directories
+      # PASSO 1: Limpeza fisica agressiva do disco raiz original (Liberando mais de 50GB extras na particao raiz nativa!)
+      - name: Cleanup Host Disk Space (Physical Cleanup)
         run: |
-          mkdir -p ${{ github.workspace }}/home
-          mkdir -p ${{ github.workspace }}/tmp
+          echo "=== Disk space BEFORE cleanup ==="
+          df -h
+          
+          echo "Deletando Android SDK & NDK..."
+          sudo rm -rf /usr/local/lib/android
+          
+          echo "Deletando .NET & Caches..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/hostedtoolcache
+          
+          echo "Deletando compiladores Haskell e Swift..."
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/share/swift
+          
+          echo "Deletando bibliotecas C++ adicionais..."
+          sudo rm -rf /usr/local/share/boost
+          
+          echo "Deletando drivers redundantes..."
+          sudo rm -rf /usr/local/share/chrome-driver
+          sudo rm -rf /usr/local/share/powershell
+          
+          echo "=== Disk space AFTER cleanup ==="
           df -h
 
-      # PASSO 4: Instala as dependencias usando os 10GB reservados na particao raiz
+      # PASSO 2: Instala as dependencias na particao raiz nativa (que agora tem >130GB livres!)
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -53,21 +55,21 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # PASSO 5: Inicia a preparacao e download do Android no volume de 102GB
+      # PASSO 3: Inicia a preparacao e download do Android na pasta padrão do usuário (~/android)
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
-          mkdir -p $GITHUB_WORKSPACE/android
-          cd $GITHUB_WORKSPACE/android
+          mkdir -p ~/android
+          cd ~/android
           repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs --depth=1
 
       - name: Copy local manifests
         run: |
-          mkdir -p $GITHUB_WORKSPACE/android/.repo/local_manifests
-          cp local_manifests/raphael.xml $GITHUB_WORKSPACE/android/.repo/local_manifests/
+          mkdir -p ~/android/.repo/local_manifests
+          cp local_manifests/raphael.xml ~/android/.repo/local_manifests/
 
       - name: Sync ROM sources
         run: |
-          cd $GITHUB_WORKSPACE/android
+          cd ~/android
           # Sincroniza apenas o necessário e de forma otimizada
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
           
@@ -83,7 +85,7 @@ jobs:
 
       - name: Apply JairoEdition Customizations & Build
         run: |
-          cd $GITHUB_WORKSPACE/android
+          cd ~/android
           # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
           device_mk="device/xiaomi/raphael/device.mk"
           if [ -f "$device_mk" ]; then
@@ -102,5 +104,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: JairoEdition-ROM
-          path: ${{ github.workspace }}/android/out/target/product/raphael/lineage-21.0-*.zip
+          path: /home/runner/android/out/target/product/raphael/lineage-21.0-*.zip
           retention-days: 7
