@@ -1,0 +1,83 @@
+name: Build Custom ROM JairoEdition A14
+
+on:
+  workflow_dispatch: # Permite iniciar a compilacao manualmente com um clique no site do GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space (Cleanup Runner)
+        run: |
+          echo "=== Freeing up space ==="
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/pipx
+          sudo rm -rf /usr/local/graalvm
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /var/lib/apt/lists/*
+          docker rmi $(docker images -q) 2>/dev/null || true
+          sudo apt-get clean
+          df -h
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev python3 python-is-python3
+
+      - name: Install Repo tool
+        run: |
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          sudo ln -sf ~/bin/repo /usr/bin/repo
+
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "Zion Tecnologia e Sistemas"
+          git config --global user.email "ziontecsys@gmail.com"
+
+      - name: Initialize ROM sources (LineageOS 21.0)
+        run: |
+          mkdir -p ~/android
+          cd ~/android
+          repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs --depth=1
+
+      - name: Copy local manifests
+        run: |
+          mkdir -p ~/android/.repo/local_manifests
+          cp local_manifests/raphael.xml ~/android/.repo/local_manifests/
+
+      - name: Sync ROM sources
+        run: |
+          cd ~/android
+          repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+
+      - name: Apply JairoEdition Customizations & Build
+        run: |
+          cd ~/android
+          # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
+          device_mk="device/xiaomi/raphael/device.mk"
+          if [ -f "$device_mk" ]; then
+            echo "" >> $device_mk
+            echo "# JairoEdition Custom Properties" >> $device_mk
+            echo "PRODUCT_PROPERTY_OVERRIDES += ro.lineage.maintainer=Jairo" >> $device_mk
+            echo "WITH_GAPPS := true" >> $device_mk
+          fi
+          
+          # Inicia o processo de build do compilador Android
+          . build/envsetup.sh
+          lunch lineage_raphael-userdebug
+          mka bacon -j$(nproc --all)
+
+      - name: Upload compiled ROM to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: JairoEdition-ROM
+          path: /home/runner/android/out/target/product/raphael/lineage-21.0-*.zip
+          retention-days: 7
