@@ -10,9 +10,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Free Disk Space (Cleanup Runner)
+      - name: Free Disk Space (Cleanup Runner Ultra-Aggressive)
         run: |
-          echo "=== Freeing up space ==="
+          echo "=== Freeing up space (Ultra-Aggressive) ==="
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
@@ -20,6 +20,10 @@ jobs:
           sudo rm -rf /opt/pipx
           sudo rm -rf /usr/local/graalvm
           sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/lib/node_modules
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo rm -rf /var/lib/apt/lists/*
           docker rmi $(docker images -q) 2>/dev/null || true
           sudo apt-get clean
@@ -56,7 +60,18 @@ jobs:
       - name: Sync ROM sources
         run: |
           cd ~/android
+          # Sincroniza apenas o necessário e de forma otimizada
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+          
+          echo "=== Disk usage BEFORE deleting .repo ==="
+          df -h
+          
+          # DELETA A PASTA .REPO PARA LIBERAR ~45GB DE ESPACO EM DISCO!
+          echo "=== Deleting .repo directory to free up space ==="
+          rm -rf .repo
+          
+          echo "=== Disk usage AFTER deleting .repo ==="
+          df -h
 
       - name: Apply JairoEdition Customizations & Build
         run: |
