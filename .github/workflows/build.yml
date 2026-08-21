@@ -59,8 +59,8 @@ jobs:
 
       - name: Configure Git identity
         run: |
-          git config --global user.name "Zion Tecnologia e Sistemas"
-          git config --global user.email "ziontecsys@gmail.com"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Initialize ROM sources (LineageOS 21.0)
         run: |
