@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <!-- Remove compiladores e emuladores redundantes do macOS (Darwin), Windows e outros, poupando 25GB+ e milhoes de inodes -->
+  <!-- Remove compiladores e emuladores redundantes do macOS (Darwin) e outros, poupando 20GB+ e milhoes de inodes -->
   <remove-project name="platform/prebuilts/clang/host/darwin-x86" />
-  <remove-project name="platform/prebuilts/gcc/darwin-x86" />
-  <remove-project name="platform/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" />
   <remove-project name="platform/prebuilts/android-emulator" />
   <remove-project name="platform/prebuilts/jdk/jdk8/darwin-x86" />
   <remove-project name="platform/prebuilts/jdk/jdk9/darwin-x86" />
