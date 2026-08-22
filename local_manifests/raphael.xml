@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="gitlab" fetch="https://gitlab.com/" />
+  <remote name="gitlab-crdroid" fetch="https://gitlab.com/" />
 
   <!-- Repositorios OFICIAIS de Device Tree e Kernel do LineageOS 19.1 -->
   <project name="LineageOS/android_device_xiaomi_raphael" path="device/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   <project name="LineageOS/android_device_xiaomi_sm8150-common" path="device/xiaomi/sm8150-common" remote="github" revision="lineage-19.1" />
   <project name="LineageOS/android_kernel_xiaomi_sm8150" path="kernel/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   
-  <!-- Blobs proprietarios (Vendor) oficiais da TheMuppets no GitLab para evitar bloqueios DMCA do GitHub -->
-  <project name="TheMuppets/proprietary_vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="gitlab" revision="lineage-19.1" />
-  <project name="TheMuppets/proprietary_vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="gitlab" revision="lineage-19.1" />
+  <!-- Blobs proprietarios (Vendor) unificados do Xiaomi (contendo raphael e sm8150-common) no GitLab da crDroid na branch 12.1 -->
+  <project name="crdroidandroid/proprietary_vendor_xiaomi" path="vendor/xiaomi" remote="gitlab-crdroid" revision="12.1" />
 
   <!-- Dependencia de hardware comum da Xiaomi -->
   <project name="LineageOS/android_hardware_xiaomi" path="hardware/xiaomi" remote="github" revision="lineage-19.1" />
