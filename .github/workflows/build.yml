@@ -89,9 +89,11 @@ jobs:
           rm -rf .repo/projects
           rm -rf .repo/project-objects
           
-          # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O WI-FI QUALCOMM
-          echo "=== Injecting Soong namespace patch to hardware/qcom-caf/wlan ==="
-          mkdir -p hardware/qcom-caf/wlan
+          # RELOCA O WI-FI QUALCOMM DA LINEAGEOS PARA O CAMINHO CAF ESPERADO PELOS BLOBS
+          echo "=== Relocating hardware/qcom/wlan to hardware/qcom-caf/wlan ==="
+          rm -rf hardware/qcom-caf/wlan
+          mv hardware/qcom/wlan hardware/qcom-caf/wlan
+          ln -sf ../qcom-caf/wlan hardware/qcom/wlan
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
           
           # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O PERFD CLIENT
