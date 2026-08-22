@@ -8,8 +8,8 @@
   <project name="LineageOS/android_kernel_xiaomi_sm8150" path="kernel/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   
   <!-- Blobs proprietarios (Vendor) oficiais da TheMuppets no GitLab para evitar bloqueios DMCA do GitHub -->
-  <project name="themuppets/proprietary_vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="gitlab" revision="lineage-19.1" />
-  <project name="themuppets/proprietary_vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="gitlab" revision="lineage-19.1" />
+  <project name="TheMuppets/proprietary_vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="gitlab" revision="lineage-19.1" />
+  <project name="TheMuppets/proprietary_vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="gitlab" revision="lineage-19.1" />
 
   <!-- Dependencia de hardware comum da Xiaomi -->
   <project name="LineageOS/android_hardware_xiaomi" path="hardware/xiaomi" remote="github" revision="lineage-19.1" />
