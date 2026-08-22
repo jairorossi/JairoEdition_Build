@@ -119,6 +119,8 @@ jobs:
           echo "=== Patching vendor/xiaomi/raphael/Android.bp ==="
           sed -i 's|libaudioroute-v34|libaudioroute|g' vendor/xiaomi/raphael/Android.bp
           sed -i 's|libprotobuf-cpp-lite-3.9.1-vendorcompat|libprotobuf-cpp-lite-vendorcompat|g' vendor/xiaomi/raphael/Android.bp
+          sed -i 's|libprotobuf-cpp-full-3.9.1-vendorcompat|libprotobuf-cpp-full-vendorcompat|g' vendor/xiaomi/raphael/Android.bp
+          sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/raphael/Android.bp
           
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
