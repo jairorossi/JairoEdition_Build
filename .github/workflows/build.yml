@@ -106,6 +106,8 @@ jobs:
           sed -i 's|libprotobuf-cpp-lite-3.9.1-vendorcompat|libprotobuf-cpp-lite-vendorcompat|g' vendor/xiaomi/sm8150-common/Android.bp
           sed -i 's|vendor.qti.hardware.display.config-V16-ndk|vendor.qti.hardware.display.config-V5-ndk|g' vendor/xiaomi/sm8150-common/Android.bp
           sed -i 's|"libjson"|"libjsoncpp"|g' vendor/xiaomi/sm8150-common/Android.bp
+          sed -i 's|android.hardware.graphics.allocator-V2-ndk|android.hardware.graphics.allocator-V1-ndk|g' vendor/xiaomi/sm8150-common/Android.bp
+          sed -i 's|"libaudiobase"|"libaudiofoundation"|g' vendor/xiaomi/sm8150-common/Android.bp
           
           echo "=== Patching vendor/xiaomi/raphael/Android.bp ==="
           sed -i 's|libaudioroute-v34|libaudioroute|g' vendor/xiaomi/raphael/Android.bp
