@@ -96,6 +96,10 @@ jobs:
           ln -sf ../qcom-caf/wlan hardware/qcom/wlan
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
           
+          # EVITA DUPLICIDADE DE AUDIO.PRIMARY.MSMNILE DO CHIP COM O DRIVER PROPRIETARIO DA XIAOMI
+          echo "=== Removing duplicated audio.primary.msmnile from hardware/qcom-caf ==="
+          rm -rf hardware/qcom-caf/sm8150/audio/hal
+          
           # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O PERFD CLIENT
           echo "=== Injecting Soong namespace patch to hardware/qcom-caf/common/libqti-perfd-client ==="
           mkdir -p hardware/qcom-caf/common/libqti-perfd-client
