@@ -116,7 +116,7 @@ jobs:
           sed -i 's|"libcld80211"|"liblog"|g' vendor/xiaomi/sm8150-common/Android.bp
           sed -i 's|libtinyxml2-v34|libtinyxml2|g' vendor/xiaomi/sm8150-common/Android.bp
           sed -i 's|"libwfdaac_vendor"|"libaudioutils"|g' vendor/xiaomi/sm8150-common/Android.bp
-          sed -i 's|android.media.audio.common.types-V5-cpp|android.media.audio.common.types-V1-cpp|g' vendor/xiaomi/sm8150-common/Android.bp
+          sed -i 's|android.media.audio.common.types-V5-cpp|android.media.audio.common.types-cpp|g' vendor/xiaomi/sm8150-common/Android.bp
           
           echo "=== Patching vendor/xiaomi/raphael/Android.bp ==="
           sed -i 's|libaudioroute-v34|libaudioroute|g' vendor/xiaomi/raphael/Android.bp
