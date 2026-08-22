@@ -102,6 +102,7 @@ jobs:
           # APLICA PATCH DE IMPORT DE DISPLAY PARA O SM8150 COMMON
           echo "=== Patching vendor/xiaomi/sm8150-common/Android.bp for sm8350 display namespace ==="
           sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/sm8150-common/Android.bp
+          sed -i 's|libprotobuf-cpp-full-3.9.1-vendorcompat|libprotobuf-cpp-full-vendorcompat|g' vendor/xiaomi/sm8150-common/Android.bp
           
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
