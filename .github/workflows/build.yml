@@ -89,6 +89,11 @@ jobs:
           rm -rf .repo/projects
           rm -rf .repo/project-objects
           
+          # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O WI-FI QUALCOMM
+          echo "=== Injecting Soong namespace patch to hardware/qcom-caf/wlan ==="
+          mkdir -p hardware/qcom-caf/wlan
+          echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
+          
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
