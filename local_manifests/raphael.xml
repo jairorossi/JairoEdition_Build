@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+  <!-- Remove o projeto duplicado do manifesto padrao para evitar erros de duplicidade no repo sync -->
+  <remove-project name="LineageOS/android_hardware_qcom_wlan" />
+
   <!-- Repositorios OFICIAIS de Device Tree e Kernel do LineageOS 19.1 -->
   <project name="LineageOS/android_device_xiaomi_raphael" path="device/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   <project name="LineageOS/android_device_xiaomi_sm8150-common" path="device/xiaomi/sm8150-common" remote="github" revision="lineage-19.1" />
