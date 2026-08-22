@@ -9,6 +9,7 @@
   <project name="Evolution-X-Devices/vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="github" revision="cnb" />
   <project name="Evolution-X-Devices/vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="github" revision="cnb" />
 
-  <!-- Dependencia de hardware comum da Xiaomi -->
+  <!-- Dependencias de hardware comum da Xiaomi e compatibilidade da LineageOS (Prebuilt Protobuf) -->
   <project name="LineageOS/android_hardware_xiaomi" path="hardware/xiaomi" remote="github" revision="lineage-19.1" />
+  <project name="LineageOS/android_hardware_lineage_compat" path="hardware/lineage/compat" remote="github" revision="lineage-19.1" />
 </manifest>

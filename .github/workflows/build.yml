@@ -99,6 +99,10 @@ jobs:
           mkdir -p hardware/qcom-caf/common/libqti-perfd-client
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/common/libqti-perfd-client/Android.bp
           
+          # APLICA PATCH DE IMPORT DE DISPLAY PARA O SM8150 COMMON
+          echo "=== Patching vendor/xiaomi/sm8150-common/Android.bp for sm8350 display namespace ==="
+          sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/sm8150-common/Android.bp
+          
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
