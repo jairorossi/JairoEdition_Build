@@ -94,6 +94,11 @@ jobs:
           mkdir -p hardware/qcom-caf/wlan
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
           
+          # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O PERFD CLIENT
+          echo "=== Injecting Soong namespace patch to hardware/qcom-caf/common/libqti-perfd-client ==="
+          mkdir -p hardware/qcom-caf/common/libqti-perfd-client
+          echo -e "soong_namespace {\n}" > hardware/qcom-caf/common/libqti-perfd-client/Android.bp
+          
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 

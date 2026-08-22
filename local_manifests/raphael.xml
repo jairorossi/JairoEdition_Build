@@ -9,7 +9,6 @@
   <project name="Evolution-X-Devices/vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="github" revision="cnb" />
   <project name="Evolution-X-Devices/vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="github" revision="cnb" />
 
-  <!-- Dependencias de hardware comum da Xiaomi e Qualcomm CAF (Wi-Fi e Common) -->
+  <!-- Dependencia de hardware comum da Xiaomi -->
   <project name="LineageOS/android_hardware_xiaomi" path="hardware/xiaomi" remote="github" revision="lineage-19.1" />
-  <project name="LineageOS/android_hardware_qcom-caf_common" path="hardware/qcom-caf/common" remote="github" revision="lineage-19.1" />
 </manifest>
