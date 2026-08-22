@@ -84,9 +84,10 @@ jobs:
           echo "=== Disk usage BEFORE deleting .repo ==="
           df -h
           
-          # DELETA A PASTA .REPO PARA LIBERAR ~45GB DE ESPACO EM DISCO!
-          echo "=== Deleting .repo directory to free up space ==="
-          rm -rf .repo
+          # DELETA APENAS HISTORICOS GIT PARA LIBERAR ~45GB, MANTENDO O MANIFEST.XML PARA O COMPILADOR!
+          echo "=== Deleting .repo git history to free up space ==="
+          rm -rf .repo/projects
+          rm -rf .repo/project-objects
           
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h

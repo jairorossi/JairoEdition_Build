@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <!-- Repositorio OFICIAL do LineageOS 19.1 (Android 12) para o Raphael -->
+  <remote name="gitlab" fetch="https://gitlab.com/" />
+
+  <!-- Repositorios OFICIAIS de Device Tree e Kernel do LineageOS 19.1 -->
   <project name="LineageOS/android_device_xiaomi_raphael" path="device/xiaomi/raphael" remote="github" revision="lineage-19.1" />
-  
-  <!-- Kernel unificado SM8150 da LineageOS para a plataforma Snapdragon 855 -->
+  <project name="LineageOS/android_device_xiaomi_sm8150-common" path="device/xiaomi/sm8150-common" remote="github" revision="lineage-19.1" />
   <project name="LineageOS/android_kernel_xiaomi_sm8150" path="kernel/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   
-  <!-- Blobs proprietarios (Vendor) portados do Android 12L para o Raphael -->
-  <project name="VoltageOS-Devices/vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="github" revision="12l" />
+  <!-- Blobs proprietarios (Vendor) oficiais da TheMuppets no GitLab para evitar bloqueios DMCA do GitHub -->
+  <project name="themuppets/proprietary_vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="gitlab" revision="lineage-19.1" />
+  <project name="themuppets/proprietary_vendor_xiaomi_sm8150-common" path="vendor/xiaomi/sm8150-common" remote="gitlab" revision="lineage-19.1" />
 
   <!-- Dependencia de hardware comum da Xiaomi -->
   <project name="LineageOS/android_hardware_xiaomi" path="hardware/xiaomi" remote="github" revision="lineage-19.1" />
