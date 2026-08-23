@@ -78,7 +78,7 @@ jobs:
               break
             fi
           done
-          exec {real_path}.real \"\$@\"
+          exec -a depmod {real_path}.real \"\$@\"
           '''
           
           final_content = textwrap.dedent(wrapper_content).strip()
@@ -86,6 +86,8 @@ jobs:
               f.write(final_content + '\n')
           "
           REAL_DEPMOD=$(which depmod || echo "/sbin/depmod")
+          # Remove links de tentativas anteriores para evitar loops recursivos
+          sudo rm -f "${REAL_DEPMOD}.real"
           sudo mv "$REAL_DEPMOD" "${REAL_DEPMOD}.real"
           sudo mv depmod_wrapper "$REAL_DEPMOD"
           sudo chmod a+x "$REAL_DEPMOD"
