@@ -134,6 +134,27 @@ jobs:
           mkdir -p kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi
           touch kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi/raphael.config
            
+          # CORRIGE A FERRAMENTA REPO PARA IGNORAR ERROS DO GIT APOS DELETAR METADADOS DO REPO
+          echo "=== Patching repo tool to ignore missing git metadata errors ==="
+          python3 -c "
+import re
+with open('.repo/repo/manifest_xml.py', 'r') as f:
+    code = f.read()
+match = re.search(r'(\s+)value = p\.work_git\.rev_parse\(HEAD \+ .?\^0.?\)', code)
+if match:
+    indent = match.group(1)
+    replacement = f'''try:
+{indent}  value = p.work_git.rev_parse(HEAD + \"^0\")
+{indent}except Exception:
+{indent}  value = p.revisionExpr or p.revisionId'''
+    code = code.replace(match.group(0), indent + replacement)
+    with open('.repo/repo/manifest_xml.py', 'w') as f:
+        f.write(code)
+    print('=== Patched manifest_xml.py successfully! ===')
+else:
+    print('=== Warning: target not found in manifest_xml.py ===')
+"
+           
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
