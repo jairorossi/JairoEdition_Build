@@ -158,20 +158,8 @@ jobs:
           fi
           echo "Kernel directory selected: $KDIR"
           
-          echo "=== Listing files in kernel configs directory for diagnostics ==="
-          find $KDIR/arch/arm64/configs -type f || true
-          
-          if [ -f "$KDIR/arch/arm64/configs/vendor/xiaomi/raphael_defconfig" ]; then
-            KCONF="vendor/xiaomi/raphael_defconfig"
-          elif [ -f "$KDIR/arch/arm64/configs/vendor/raphael_defconfig" ]; then
-            KCONF="vendor/raphael_defconfig"
-          elif [ -f "$KDIR/arch/arm64/configs/raphael_defconfig" ]; then
-            KCONF="raphael_defconfig"
-          elif [ -f "$KDIR/arch/arm64/configs/sm8150-perf_defconfig" ]; then
-            KCONF="sm8150-perf_defconfig"
-          else
-            KCONF="sm8150_defconfig"
-          fi
+          # A defconfig unificada oficial do SM8150 na LineageOS 19.1 e vendor/sm8150-perf_defconfig
+          KCONF="vendor/sm8150-perf_defconfig"
           echo "Using defconfig: $KCONF"
           mkdir -p out/target/product/raphael/obj/KERNEL_OBJ
           make -C $KDIR O=../../../out/target/product/raphael/obj/KERNEL_OBJ ARCH=arm64 $KCONF
