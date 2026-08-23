@@ -96,11 +96,9 @@ jobs:
           ln -sf ../qcom-caf/wlan hardware/qcom/wlan
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
           
-          # EVITA DUPLICIDADE DE AUDIO.PRIMARY.MSMNILE DO CHIP E PREVINE ERRO DE MAKEFILE AUSENTE NO KATI
-          echo "=== Removing duplicated audio.primary.msmnile and creating dummy Makefile ==="
-          rm -rf hardware/qcom-caf/sm8150/audio/hal
-          mkdir -p hardware/qcom-caf/sm8150/audio/hal
-          touch hardware/qcom-caf/sm8150/audio/hal/Android.mk
+          # EVITA DUPLICIDADE DE AUDIO.PRIMARY.MSMNILE DESATIVANDO O MAKEFILE PRINCIPAL DA HAL GENERICA
+          echo "=== Disabling generic audio Android.mk to prioritize vendor audio HAL ==="
+          echo "" > hardware/qcom-caf/sm8150/audio/Android.mk
           
           # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O PERFD CLIENT
           echo "=== Injecting Soong namespace patch to hardware/qcom-caf/common/libqti-perfd-client ==="
