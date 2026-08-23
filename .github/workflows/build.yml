@@ -149,6 +149,19 @@ jobs:
             echo "WITH_GAPPS := true" >> $device_mk
           fi
           
+          # PRE-GERA O .CONFIG BASE DO KERNEL PARA PREVENIR CONDICAO DE CORRIDA (RACE CONDITION) NO NINJA
+          echo "=== Pre-generating base kernel .config ==="
+          if [ -f "kernel/xiaomi/sm8150/arch/arm64/configs/vendor/raphael_defconfig" ]; then
+            KCONF="vendor/raphael_defconfig"
+          elif [ -f "kernel/xiaomi/sm8150/arch/arm64/configs/raphael_defconfig" ]; then
+            KCONF="raphael_defconfig"
+          else
+            KCONF="sm8150_defconfig"
+          fi
+          echo "Using defconfig: $KCONF"
+          mkdir -p out/target/product/raphael/obj/KERNEL_OBJ
+          make -C kernel/xiaomi/sm8150 O=../../../out/target/product/raphael/obj/KERNEL_OBJ ARCH=arm64 $KCONF
+          
           # Inicia o processo de build do compilador Android
           . build/envsetup.sh
           lunch lineage_raphael-userdebug
