@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 2: Garante um Swapfile de 4GB limpo e estavel no sistema
+      # PASSO 2: Garante um Swapfile de 16GB limpo e estavel no sistema para evitar OOM Crash
       - name: Configure Swap Space
         run: |
           echo "=== Status da memoria original ==="
@@ -31,7 +31,7 @@ jobs:
           sudo swapoff -a || true
           sudo rm -f /swapfile || true
           sudo rm -f /mnt/swapfile || true
-          sudo fallocate -l 4G /swapfile
+          sudo fallocate -l 16G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
