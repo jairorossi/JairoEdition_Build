@@ -128,7 +128,12 @@ jobs:
           sed -i 's|libprotobuf-cpp-full-3.9.1-vendorcompat|libprotobuf-cpp-full-vendorcompat|g' vendor/xiaomi/raphael/Android.bp
           sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/raphael/Android.bp
           sed -i 's|"libpiex_shim"|"libpiex"|g' vendor/xiaomi/raphael/Android.bp
-          
+           
+          # CRIA O CONFIG FRAGMENT DUMMY DO KERNEL PARA EVITAR ERRO DE DEPENDENCIA NO NINJA
+          echo "=== Creating dummy kernel config fragment ==="
+          mkdir -p kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi
+          touch kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi/raphael.config
+           
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
