@@ -3,7 +3,7 @@
   <!-- Repositorios OFICIAIS de Device Tree e Kernel do LineageOS 19.1 -->
   <project name="LineageOS/android_device_xiaomi_raphael" path="device/xiaomi/raphael" remote="github" revision="lineage-19.1" />
   <project name="LineageOS/android_device_xiaomi_sm8150-common" path="device/xiaomi/sm8150-common" remote="github" revision="lineage-19.1" />
-  <project name="LineageOS/android_kernel_xiaomi_sm8150" path="kernel/xiaomi/raphael" remote="github" revision="lineage-19.1" />
+  <project name="LineageOS/android_kernel_xiaomi_sm8150" path="kernel/xiaomi/sm8150" remote="github" revision="lineage-19.1" />
   
   <!-- Blobs proprietarios (Vendor) especificos e comuns do Evolution X (Android 12L) -->
   <project name="Evolution-X-Devices/vendor_xiaomi_raphael" path="vendor/xiaomi/raphael" remote="github" revision="cnb" />
