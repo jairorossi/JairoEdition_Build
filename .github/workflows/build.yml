@@ -158,6 +158,9 @@ jobs:
           fi
           echo "Kernel directory selected: $KDIR"
           
+          echo "=== Listing files in kernel configs directory for diagnostics ==="
+          find $KDIR/arch/arm64/configs -type f || true
+          
           if [ -f "$KDIR/arch/arm64/configs/vendor/xiaomi/raphael_defconfig" ]; then
             KCONF="vendor/xiaomi/raphael_defconfig"
           elif [ -f "$KDIR/arch/arm64/configs/vendor/raphael_defconfig" ]; then
