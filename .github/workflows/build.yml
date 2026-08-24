@@ -77,12 +77,13 @@ jobs:
         run: |
           cd ~/android
           
-          # LIMPEZA PREVIA PARA EVITAR CONFLITO DE BRANCH NO REPO SYNC
+          # LIMPEZA PREVIA DE PASTAS CHAVE PARA EVITAR ERRO DE BRANCH / REPO
           rm -rf kernel/xiaomi/sm8150
           rm -rf vendor/xiaomi/raphael
           rm -rf vendor/xiaomi/sm8150-common
 
-          repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
+          # SINCRONIZACAO RESILIENTE (IGNORA PROJETOS COM ERRO E FORÇA CLONE LIMPO)
+          repo sync -c -j4 --force-sync --no-clone-bundle --no-tags --force-broken || repo sync -c -j2 --force-sync --no-clone-bundle --no-tags --force-broken
           
           echo "=== Disk usage BEFORE deleting .repo ==="
           df -h
