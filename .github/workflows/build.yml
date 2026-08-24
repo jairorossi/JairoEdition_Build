@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # PASSO 1: Limpeza nativa profissional com a Action oficial free-disk-space (Liberando ~45GB extras de bloatware e Docker!)
+      # PASSO 1: Limpeza nativa profissional com a Action oficial free-disk-space
       - name: Free Disk Space (Reclaim Host Space)
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -17,13 +17,12 @@ jobs:
           haskell: true
           large-packages: true
           docker-images: true
-          # Mantem o swap original do GitHub ativo para seguranca de RAM virtual
           swap-storage: false
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PASSO 2: Garante um Swapfile de 16GB limpo e estavel no sistema para evitar OOM Crash
+      # PASSO 2: Garante um Swapfile de 16GB limpo e estavel no sistema
       - name: Configure Swap Space
         run: |
           echo "=== Status da memoria original ==="
@@ -56,7 +55,6 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          # Otimizações de concorrência e memória do Git
           git config --global pack.threads 1
           git config --global pack.windowMemory 256m
           git config --global pack.packSizeLimit 256m
@@ -78,34 +76,28 @@ jobs:
       - name: Sync ROM sources
         run: |
           cd ~/android
-          # Sincroniza apenas o necessário e de forma otimizada
           repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
           
           echo "=== Disk usage BEFORE deleting .repo ==="
           df -h
           
-          # DELETA APENAS HISTORICOS GIT PARA LIBERAR ~45GB, MANTENDO O MANIFEST.XML PARA O COMPILADOR!
           echo "=== Deleting .repo git history to free up space ==="
           rm -rf .repo/projects
           rm -rf .repo/project-objects
           
-          # RELOCA O WI-FI QUALCOMM DA LINEAGEOS PARA O CAMINHO CAF ESPERADO PELOS BLOBS
           echo "=== Relocating hardware/qcom/wlan to hardware/qcom-caf/wlan ==="
           rm -rf hardware/qcom-caf/wlan
           mv hardware/qcom/wlan hardware/qcom-caf/wlan
           ln -sf ../qcom-caf/wlan hardware/qcom/wlan
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/wlan/Android.bp
           
-          # EVITA DUPLICIDADE DE AUDIO.PRIMARY.MSMNILE DESATIVANDO O MAKEFILE PRINCIPAL DA HAL GENERICA
           echo "=== Disabling generic audio Android.mk to prioritize vendor audio HAL ==="
           echo "" > hardware/qcom-caf/sm8150/audio/Android.mk
           
-          # CRIA O ANDROID.BP FAKE DE TRANSICAO DO SOONG PARA O PERFD CLIENT
           echo "=== Injecting Soong namespace patch to hardware/qcom-caf/common/libqti-perfd-client ==="
           mkdir -p hardware/qcom-caf/common/libqti-perfd-client
           echo -e "soong_namespace {\n}" > hardware/qcom-caf/common/libqti-perfd-client/Android.bp
           
-          # APLICA PATCH DE IMPORT DE DISPLAY E AUDIO PARA O SM8150 E RAPHAEL
           echo "=== Patching vendor/xiaomi/sm8150-common/Android.bp ==="
           sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/sm8150-common/Android.bp
           sed -i 's|libprotobuf-cpp-full-3.9.1-vendorcompat|libprotobuf-cpp-full-vendorcompat|g' vendor/xiaomi/sm8150-common/Android.bp
@@ -129,12 +121,10 @@ jobs:
           sed -i 's|"hardware/qcom-caf/sm8150"|"hardware/qcom-caf/sm8150", "hardware/qcom-caf/sm8350"|g' vendor/xiaomi/raphael/Android.bp
           sed -i 's|"libpiex_shim"|"libpiex"|g' vendor/xiaomi/raphael/Android.bp
            
-          # CRIA O CONFIG FRAGMENT DUMMY DO KERNEL PARA EVITAR ERRO DE DEPENDENCIA NO NINJA
           echo "=== Creating dummy kernel config fragment ==="
           mkdir -p kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi
           touch kernel/xiaomi/sm8150/arch/arm64/configs/vendor/xiaomi/raphael.config
            
-          # CORRIGE A FERRAMENTA REPO PARA IGNORAR ERROS DO GIT APOS DELETAR METADADOS DO REPO
           echo "=== Patching repo tool to ignore missing git metadata errors ==="
           python3 -c "
           import re
@@ -158,14 +148,12 @@ jobs:
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
-- name: Apply JairoEdition Customizations & Build
+      - name: Apply JairoEdition Customizations & Build
         run: |
           cd ~/android
-          # CORRIGE TODOS OS PREBUILTS DE DEPMOD NO ANDROID (EVITANDO PATH SANDBOXING DO SOONG E USANDO O WRAPPER CORRETO)
           echo "=== Patching prebuilt depmod binaries in AOSP sources ==="
           python3 $GITHUB_WORKSPACE/patch_depmod.py || true
 
-          # CRIAÇÃO DOS ARQUIVOS E PASTAS DUMMY DO DEPMOD PARA EVITAR PARADA DO NINJA
           echo "=== Creating dummy depmod modules structure ==="
           DEPMOD_BASE="out/target/product/raphael/obj/PACKAGING/depmod_vendor_intermediates/lib/modules"
           mkdir -p $DEPMOD_BASE/0.0
@@ -175,7 +163,6 @@ jobs:
           touch $DEPMOD_BASE/4.14.180-perf/modules.order
           touch $DEPMOD_BASE/4.14.180-perf/modules.builtin
 
-          # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
           device_mk="device/xiaomi/raphael/device.mk"
           if [ -f "$device_mk" ]; then
             echo "" >> $device_mk
@@ -184,7 +171,6 @@ jobs:
             echo "WITH_GAPPS := true" >> $device_mk
           fi
           
-          # PRE-GERA O .CONFIG BASE DO KERNEL PARA PREVENIR CONDICAO DE CORRIDA (RACE CONDITION) NO NINJA
           echo "=== Pre-generating base kernel .config ==="
           if [ -d "kernel/xiaomi/sm8150" ]; then
             KDIR="kernel/xiaomi/sm8150"
@@ -193,17 +179,15 @@ jobs:
           fi
           echo "Kernel directory selected: $KDIR"
           
-          # A defconfig unificada oficial do SM8150 na LineageOS 19.1 e vendor/sm8150-perf_defconfig
           KCONF="vendor/sm8150-perf_defconfig"
           echo "Using defconfig: $KCONF"
           mkdir -p out/target/product/raphael/obj/KERNEL_OBJ
           make -C $KDIR O=../../../out/target/product/raphael/obj/KERNEL_OBJ ARCH=arm64 $KCONF
           
-          # Inicia o processo de build do compilador Android
           . build/envsetup.sh
           lunch lineage_raphael-userdebug
           mka bacon -j$(nproc --all)
-          
+
       - name: Upload compiled ROM to Artifacts
         uses: actions/upload-artifact@v4
         with:
