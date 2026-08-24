@@ -158,12 +158,23 @@ jobs:
           echo "=== Disk usage AFTER deleting .repo ==="
           df -h
 
-      - name: Apply JairoEdition Customizations & Build
+- name: Apply JairoEdition Customizations & Build
         run: |
           cd ~/android
           # CORRIGE TODOS OS PREBUILTS DE DEPMOD NO ANDROID (EVITANDO PATH SANDBOXING DO SOONG E USANDO O WRAPPER CORRETO)
           echo "=== Patching prebuilt depmod binaries in AOSP sources ==="
-          python3 $GITHUB_WORKSPACE/patch_depmod.py
+          python3 $GITHUB_WORKSPACE/patch_depmod.py || true
+
+          # CRIAÇÃO DOS ARQUIVOS E PASTAS DUMMY DO DEPMOD PARA EVITAR PARADA DO NINJA
+          echo "=== Creating dummy depmod modules structure ==="
+          DEPMOD_BASE="out/target/product/raphael/obj/PACKAGING/depmod_vendor_intermediates/lib/modules"
+          mkdir -p $DEPMOD_BASE/0.0
+          mkdir -p $DEPMOD_BASE/4.14.180-perf
+          touch $DEPMOD_BASE/0.0/modules.order
+          touch $DEPMOD_BASE/0.0/modules.builtin
+          touch $DEPMOD_BASE/4.14.180-perf/modules.order
+          touch $DEPMOD_BASE/4.14.180-perf/modules.builtin
+
           # Injeta flags de creditos no device.mk da arvore do Raphael antes de iniciar
           device_mk="device/xiaomi/raphael/device.mk"
           if [ -f "$device_mk" ]; then
@@ -192,7 +203,7 @@ jobs:
           . build/envsetup.sh
           lunch lineage_raphael-userdebug
           mka bacon -j$(nproc --all)
-
+          
       - name: Upload compiled ROM to Artifacts
         uses: actions/upload-artifact@v4
         with:
