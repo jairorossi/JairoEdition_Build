@@ -4,8 +4,8 @@ import textwrap
 print("=== Starting depmod prebuilt patcher ===")
 patched_any = False
 
-# Procura na pasta prebuilts/build-tools/
-for root, dirs, files in os.walk('prebuilts/build-tools'):
+# Procura na pasta prebuilts/
+for root, dirs, files in os.walk('prebuilts'):
     if 'depmod' in files:
         depmod_path = os.path.join(root, 'depmod')
         real_path = depmod_path + '.real'
